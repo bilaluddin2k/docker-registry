@@ -1,0 +1,16 @@
+FROM registry:2
+
+# Expose a custom port (replace 5555 with your desired port)
+EXPOSE 5555
+
+# Create a volume mount point for /etc/docker/registry
+VOLUME /etc/docker/registry
+
+# Copy configuration files (if needed)
+# ADD config/* /etc/docker/registry/
+
+# Specify entrypoint to override default
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Command to start the registry (optional customization)
+CMD ["registry", "serve", "--config", "/etc/docker/registry/config.yml"]
