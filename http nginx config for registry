@@ -1,0 +1,40 @@
+Certainly! Below is the full configuration for setting up a Docker Registry behind Nginx as a reverse proxy with HTTP. Replace registry.example.com with your actual domain.Nginx Configuration (/etc/nginx/sites-available/docker-registry):server {
+    listen 80;
+    server_name registry.example.com;
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    client_max_body_size 0; # Disable any limits to avoid HTTP 413 for large image uploads
+}
+
+
+Docker Registry Configuration (/etc/docker/registry/config.yml):
+version: 0.1
+log:
+  fields:
+    service: registry
+  level: info
+  formatter: json
+storage:
+  cache:
+    blobdescriptor: inmemory
+  filesystem:
+    rootdirectory: /var/lib/registry
+http:
+  addr: localhost:5000
+
+
+Steps to Enable Nginx Configuration:# Create a symbolic link to enable the configuration
+sudo ln -s /etc/nginx/sites-available/docker-registry /etc/nginx/sites-enabled/
+
+# Restart Nginx to apply the changes
+sudo systemctl restart nginx
+Steps to Restart Docker Registry:# Restart Docker Registry to apply the changes
+docker restart registry
+Now, your Docker Registry should be accessible through Nginx at http://registry.example.com. Adjust the configuration files according to your domain and server settings.
